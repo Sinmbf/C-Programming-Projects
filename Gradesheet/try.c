@@ -1,18 +1,23 @@
+/* ********************************GRADESHEET MANAGEMENT SYSTEM***************************** */
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<windows.h>
 
 /* *********Structures*********** */
+
+// *********Sub Structures******** //
 struct subject {
 	char subjectName[20];
 	int marks;
 } subject;
 
- struct marks{
+struct marks {
 	int totalMarks;
 	float percentage;
 };
 
+// ************MAIN STRUCTURE*************** //
 typedef struct student {
 	int registrationNum;
 	char name[20];
@@ -23,12 +28,16 @@ typedef struct student {
 } student;
 
 /* *********Function Prototypes************ */
-void home();
+int home();
 void confirmationDialogue(int,int,char *,char *);
 void getStudentInfo(struct student *std);
 char* calculateGrade(int marks);
 void saveToFile(struct student *std);
-void generateGradesheet(struct student *std);
+void readFromFile();
+int generateGradesheet(int,int,struct student *std);
+int showGradesheet();
+int searchGradesheet();
+int deleteGradesheet();
 
 /* *********Utility Functions Prototypes********* */
 void gotoxy(int,int);
@@ -39,11 +48,12 @@ void printRows(int,char *,int [],float);
 /* *********Main Program********* */
 int main() {
 	char ch;
-	int x=31,y=15;
+	int x=30,y=15;
 	do {
 		system("cls");
-		home();
-		confirmationDialogue(x,30,"Do you want to perform another operation?[y/n]: ",&ch);
+		y=home();
+		y+=1;
+		confirmationDialogue(x,++y,"Do you want to perform another operation?[y/n]: ",&ch);
 	} while(ch=='y' || ch=='Y');
 	return 0;
 }
@@ -77,9 +87,10 @@ void printVerticalLine(int x,int y,int height) {
 }
 
 // Function to display starting point of program
-void home() {
+int home() {
 	system("Color 07");
 	struct student std;
+	char ch;
 	int x=30,y=5;
 	int choice;
 	int width=46;
@@ -109,13 +120,37 @@ void home() {
 		case 1:
 			system("Color 02");
 			getStudentInfo(&std);
-			generateGradesheet(&std);
+			system("cls");
+			y=generateGradesheet(40,5,&std);
+			y+=1;
+			confirmationDialogue(30,++y,"Do you want to save the gradesheet?[y/n]: ",&ch);
+			if(ch=='y' || ch=='Y') {
+				gotoxy(30,++y);
+				saveToFile(&std);
+			}
 			break;
+		case 2:
+			system("cls");
+			system("Color 07");
+			y=showGradesheet();
+			break;
+		case 3:
+			system("cls");
+			system("Color 03");
+			y=searchGradesheet();
+			break;
+		case 4:
+			system("cls");
+			system("Color 04");
+			y=deleteGradesheet();
+			break;
+		case 5:
+			exit(0);
 		default:
 			gotoxy(30,5);
 			printf("Invalid choice");
 	}
-
+	return y;
 }
 
 // Function to ask whether to continue program
@@ -127,7 +162,14 @@ void confirmationDialogue(int x,int y,char *dialogue,char *ch) {
 
 // Function to get student information
 void getStudentInfo(struct student *std) {
+	struct student std1;
+	FILE *fptr;
 	int i,x=30,y=5;
+	fptr=fopen("student.txt","rb");
+	if(fptr==NULL) {
+		printf("Error opening student.txt");
+		exit(1);
+	}
 	std->mrk.totalMarks=0;
 	gotoxy(x,y);
 	printf("Enter student details:");
@@ -138,7 +180,21 @@ void getStudentInfo(struct student *std) {
 	gotoxy(x,++y);
 	printf("NCCS reg. num: ");
 	scanf("%d",&std->registrationNum);
+	while(fread(&std1,sizeof(std1),1,fptr)) {
+		while(std->registrationNum==std1.registrationNum) {
+			y+=1;
+			gotoxy(x,++y);
+			printf("Record of student already exists!!");
+			gotoxy(x,++y);
+			printf("Enter NCCS reg. num again: ");
+			scanf("%d",&std->registrationNum);
+			// Reset file pointer to check reg No from the beginning
+			rewind(fptr);
+		}
+	}
+	fclose(fptr);
 	getchar(); // consume the new line character
+	y+=1;
 	gotoxy(x,++y);
 	printf("Faculty: ");
 	fgets(std->faculty,sizeof(std->faculty),stdin);
@@ -159,26 +215,21 @@ void getStudentInfo(struct student *std) {
 		std->mrk.totalMarks+=std->subj[i].marks;
 	}
 	std->mrk.percentage=(float)std->mrk.totalMarks/500*100;
-} 
+}
 
 // Function to calculate grade
-char* calculateGrade(int marks){
-	if(marks>=90 && marks<=100){
+char* calculateGrade(int marks) {
+	if(marks>=90 && marks<=100) {
 		return "A+";
-	}
-	else if(marks>=80){
+	} else if(marks>=80) {
 		return "A";
-	}
-	else if(marks>=70){
+	} else if(marks>=70) {
 		return "B+";
-	}
-	else if(marks>=60){
+	} else if(marks>=60) {
 		return "B";
-	}
-	else if(marks>=50){
+	} else if(marks>=50) {
 		return "C";
-	}
-	else{
+	} else {
 		return "NG";
 	}
 }
@@ -188,13 +239,13 @@ void saveToFile(student *std) {
 	student std1;
 	FILE *fptr;
 	int i;
-	fptr=fopen("student.txt","wb");
+	fptr=fopen("student.txt","ab");
 	if(fptr==NULL) {
 		system("cls");
 		printf("Error opening student.txt");
 	}
 	if(fwrite(std,sizeof(student),1,fptr)) {
-		printf("Successfully written to file");
+		printf("Successfully saved to file");
 	} else {
 		printf("Error writing into file");
 	}
@@ -202,10 +253,9 @@ void saveToFile(student *std) {
 }
 
 // Function to generateGradesheet
-void generateGradesheet(struct student *std) {
+int generateGradesheet(int x,int y,struct student *std) {
+	char ch;
 	int i;
-	int x=40,y=5;
-	system("cls");
 	gotoxy(x,y);
 	printf("National College Of Computer Studies");
 	x+=8;
@@ -213,8 +263,8 @@ void generateGradesheet(struct student *std) {
 	printf("Paknajol, Kathmandu");
 	x-=18;
 	y+=2;
-	printHorizontalLine(30,8,56);
-	printVerticalLine(30,8,19);
+	printHorizontalLine(x,y,56);
+	printVerticalLine(x,y,19);
 	x+=3;
 	gotoxy(x,++y);
 	printf("Name: %s",std->name);
@@ -224,49 +274,145 @@ void generateGradesheet(struct student *std) {
 	printf("Faculty: %s",std->faculty);
 	gotoxy(x,++y);
 	printf("Semester: %d",std->semester);
-	printHorizontalLine(31,++y,55);
-	printVerticalLine(85,8,19);
-	gotoxy(34,++y);
+	printHorizontalLine(x-2,++y,55);
+	printVerticalLine(x+52,y-5,19);
+	gotoxy(x+1,++y);
 	printf("Subject Name");
-	gotoxy(51,y);
+	gotoxy(x+18,y);
 	printf("Marks Obtained");
-	gotoxy(69,y);
+	gotoxy(x+36,y);
 	printf("Grade Obtained");
-	printHorizontalLine(31,++y,54);
-	printVerticalLine(49,13,14);
-	printVerticalLine(66,13,14);
+	printHorizontalLine(x-2,++y,54);
+	printVerticalLine(x+16,y-2,14);
+	printVerticalLine(x+33,y-2,14);
 	for(i=0; i<5; i++) {
 		// Subject Name
-		gotoxy(34,++y);
+		gotoxy(x+1,++y);
 		printf("%s",std->subj[i].subjectName);
 		// Marks obtained
-		gotoxy(57,y);
+		gotoxy(x+24,y);
 		printf("%d",std->subj[i].marks);
-		gotoxy(75,y);
+		gotoxy(x+42,y);
 		// Grade obtained
 		printf("%s",calculateGrade(std->subj[i].marks));
-		printHorizontalLine(31,++y,54);
+		printHorizontalLine(x-2,++y,54);
 	}
-	printHorizontalLine(31,++y,54);
+	printHorizontalLine(x-2,++y,54);
 	// Percentage
-	gotoxy(34,++y);
+	gotoxy(x+1,++y);
 	printf("Percentage");
-	gotoxy(73,y);
+	gotoxy(x+40,y);
 	printf("%.2f%%",std->mrk.percentage);
-	printHorizontalLine(30,++y,56);
-//	saveToFile(&std);
+	printHorizontalLine(x-3,++y,56);
+	return y;
 }
 
 // Function to show gradesheet
-void showGradesheet(struct student std) {
-	int x=30,y=5;
-	gotoxy(x,y);
-	printf("National College Of Computer Studies");
-	x+=8;
-	gotoxy(48,++y);
-	printf("Paknajol, Kathmandu");
-	x-=18;
+int showGradesheet() {
+	FILE *fptr;
+	int x=40,y=5,flag;
+	struct student std;
+	fptr=fopen("student.txt","rb");
+	if(fptr==NULL) {
+		printf("Error opening student.txt");
+		exit(1);
+	}
+	flag=fread(&std,sizeof(std),1,fptr);
+	if(flag<1) {
+		gotoxy(30,y);
+		printf("No gradesheet found!!!");
+		return y;
+	} else {
+		generateGradesheet(x,y,&std);
+		printHorizontalLine(0,y+25,120);
+		y+=26;
+		while(fread(&std,sizeof(std),1,fptr)) {
+			generateGradesheet(x,y,&std);
+			printHorizontalLine(0,y+25,120);
+			y+=26;
+		}
+	}
+	fclose(fptr);
+	return y;
+}
+
+// Function to search gradesheet by registration No
+int searchGradesheet() {
+	FILE *fptr;
+	struct student std;
+	int regNo;
+	int x=40,y=5,flag=0;
+	gotoxy(x-10,y);
+	printf("Enter NCCS registration number of the student: ");
+	scanf("%d",&regNo);
 	y+=2;
-	gotoxy(x,y);
-	printf("Name: ");
+	fptr=fopen("student.txt","rb");
+	if(fptr==NULL) {
+		printf("Error opening student.txt");
+		exit(1);
+	}
+	while(fread(&std,sizeof(std),1,fptr)) {
+		if(std.registrationNum==regNo) {
+			y=generateGradesheet(x,++y,&std);
+			printHorizontalLine(0,y+25,120);
+			flag=1;
+			break;
+		}
+	}
+	gotoxy(x,++y);
+	if(flag==0) {
+		printf("Record not found!!");
+	}
+	fclose(fptr);
+	return y;
+}
+
+// Function to delete gradesheet by registration No
+int deleteGradesheet() {
+	FILE *fptr1,*fptr2;
+	struct student std;
+	int regNo,err,flag=0;
+	int x=40,y=5;
+	gotoxy(x-10,y);
+	printf("Enter NCCS registration number of the student: ");
+	scanf("%d",&regNo);
+	y+=1;
+	fptr1=fopen("student.txt","rb");
+	fptr2=fopen("temp.txt","wb");
+	if(fptr1==NULL) {
+		printf("Error opening student.txt");
+		exit(1);
+	}
+	if(fptr2==NULL) {
+		printf("Error opening student.txt");
+		exit(1);
+	}
+	while(fread(&std,sizeof(std),1,fptr1)) {
+		if(std.registrationNum!=regNo) {
+			fwrite(&std,sizeof(std),1,fptr2);
+		} else {
+			flag=1;
+		}
+	}
+	if(flag==0) {
+		gotoxy(x,++y);
+		printf("Gradesheet not found!!!!");
+		return y;
+	}
+	fclose(fptr1);
+	fclose(fptr2);
+	err=remove("student.txt");
+	gotoxy(x-5,++y);
+	if(err!=0) {
+		printf("Error deleting student.txt");
+		return y;
+	}
+	err=rename("temp.txt","student.txt");
+	if(err!=0) {
+		printf("Error deleting record");
+		return y;
+	} else {
+		printf("Successfully deleted record");
+	}
+	return y;
 }
