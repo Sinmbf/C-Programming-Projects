@@ -354,7 +354,6 @@ int searchGradesheet() {
 	while(fread(&std,sizeof(std),1,fptr)) {
 		if(std.registrationNum==regNo) {
 			y=generateGradesheet(x,++y,&std);
-			printHorizontalLine(0,y+25,120);
 			flag=1;
 			break;
 		}
