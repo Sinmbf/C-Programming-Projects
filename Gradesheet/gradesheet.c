@@ -165,7 +165,7 @@ void getStudentInfo(struct student *std) {
 	struct student std1;
 	FILE *fptr;
 	int i,x=30,y=5;
-	fptr=fopen("student.txt","rb");
+	fptr=fopen("student.txt","ab+");
 	if(fptr==NULL) {
 		printf("Error opening student.txt");
 		exit(1);
