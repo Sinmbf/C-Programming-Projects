@@ -52,7 +52,7 @@ int main() {
 	do {
 		system("cls");
 		y=home();
-		y+=1;
+		y+=3;
 		confirmationDialogue(x,++y,"Do you want to perform another operation?[y/n]: ",&ch);
 	} while(ch=='y' || ch=='Y');
 	return 0;
@@ -91,13 +91,13 @@ int home() {
 	system("Color 07");
 	struct student std;
 	char ch;
-	int x=30,y=5;
+	int x=30,y=8;
 	int choice;
 	int width=46;
-	printHorizontalLine(30,5,width);
+	printHorizontalLine(30,8,width);
 	gotoxy(x,++y);
 	printf("|********Gradesheet Management System********|");
-	printHorizontalLine(30,7,width);
+	printHorizontalLine(30,10,width);
 	y+=2;
 	gotoxy(x,y);
 	printf("1. Generate Gradesheet");
@@ -121,8 +121,8 @@ int home() {
 			system("Color 02");
 			getStudentInfo(&std);
 			system("cls");
-			y=generateGradesheet(40,5,&std);
-			y+=1;
+			y=generateGradesheet(40,8,&std);
+			y+=3;
 			confirmationDialogue(30,++y,"Do you want to save the gradesheet?[y/n]: ",&ch);
 			if(ch=='y' || ch=='Y') {
 				gotoxy(30,++y);
@@ -147,7 +147,7 @@ int home() {
 		case 5:
 			exit(0);
 		default:
-			gotoxy(30,5);
+			gotoxy(30,8);
 			printf("Invalid choice");
 	}
 	return y;
@@ -164,8 +164,8 @@ void confirmationDialogue(int x,int y,char *dialogue,char *ch) {
 void getStudentInfo(struct student *std) {
 	struct student std1;
 	FILE *fptr;
-	int i,x=30,y=5;
-	fptr=fopen("student.txt","rb");
+	int i,x=30,y=8;
+	fptr=fopen("student.txt","ab+");
 	if(fptr==NULL) {
 		printf("Error opening student.txt");
 		exit(1);
@@ -310,7 +310,7 @@ int generateGradesheet(int x,int y,struct student *std) {
 // Function to show gradesheet
 int showGradesheet() {
 	FILE *fptr;
-	int x=40,y=5,flag;
+	int x=40,y=8,flag;
 	struct student std;
 	fptr=fopen("student.txt","rb");
 	if(fptr==NULL) {
@@ -341,7 +341,7 @@ int searchGradesheet() {
 	FILE *fptr;
 	struct student std;
 	int regNo;
-	int x=40,y=5,flag=0;
+	int x=40,y=8,flag=0;
 	gotoxy(x-10,y);
 	printf("Enter NCCS registration number of the student: ");
 	scanf("%d",&regNo);
@@ -354,7 +354,6 @@ int searchGradesheet() {
 	while(fread(&std,sizeof(std),1,fptr)) {
 		if(std.registrationNum==regNo) {
 			y=generateGradesheet(x,++y,&std);
-			printHorizontalLine(0,y+25,120);
 			flag=1;
 			break;
 		}
@@ -372,7 +371,7 @@ int deleteGradesheet() {
 	FILE *fptr1,*fptr2;
 	struct student std;
 	int regNo,err,flag=0;
-	int x=40,y=5;
+	int x=40,y=8;
 	gotoxy(x-10,y);
 	printf("Enter NCCS registration number of the student: ");
 	scanf("%d",&regNo);
