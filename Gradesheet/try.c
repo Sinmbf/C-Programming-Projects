@@ -1,12 +1,12 @@
-/* ********************************GRADESHEET MANAGEMENT SYSTEM***************************** */
+/* *******************************GRADESHEET MANAGEMENT SYSTEM**************************** */
 
 #include<stdio.h>
 #include<stdlib.h>
 #include<windows.h>
 
-/* *********Structures*********** */
+/* ********Structures********** */
 
-// *********Sub Structures******** //
+// ********Sub Structures******* //
 struct subject {
 	char subjectName[20];
 	int marks;
@@ -17,7 +17,7 @@ struct marks {
 	float percentage;
 };
 
-// ************MAIN STRUCTURE*************** //
+// ***********MAIN STRUCTURE************** //
 typedef struct student {
 	int registrationNum;
 	char name[20];
@@ -27,7 +27,7 @@ typedef struct student {
 	struct marks mrk;
 } student;
 
-/* *********Function Prototypes************ */
+/* ********Function Prototypes*********** */
 int home();
 void confirmationDialogue(int,int,char *,char *);
 void getStudentInfo(struct student *std);
@@ -39,26 +39,26 @@ int showGradesheet();
 int searchGradesheet();
 int deleteGradesheet();
 
-/* *********Utility Functions Prototypes********* */
+/* ********Utility Functions Prototypes******** */
 void gotoxy(int,int);
 void printHorizontalLine(int,int,int);
 void printVerticalLine(int,int,int);
 void printRows(int,char *,int [],float);
 
-/* *********Main Program********* */
+/* ********Main Program******** */
 int main() {
 	char ch;
 	int x=30,y=15;
 	do {
 		system("cls");
 		y=home();
-		y+=3;
+		y+=1;
 		confirmationDialogue(x,++y,"Do you want to perform another operation?[y/n]: ",&ch);
 	} while(ch=='y' || ch=='Y');
 	return 0;
 }
 
-/* ********Function Definitions*********** */
+/* *******Function Definitions********** */
 
 // Function to move cursor to specified position
 void gotoxy(int x,int y) {
@@ -91,13 +91,13 @@ int home() {
 	system("Color 07");
 	struct student std;
 	char ch;
-	int x=30,y=8;
+	int x=30,y=5;
 	int choice;
 	int width=46;
-	printHorizontalLine(30,8,width);
+	printHorizontalLine(30,5,width);
 	gotoxy(x,++y);
 	printf("|********Gradesheet Management System********|");
-	printHorizontalLine(30,10,width);
+	printHorizontalLine(30,7,width);
 	y+=2;
 	gotoxy(x,y);
 	printf("1. Generate Gradesheet");
@@ -121,8 +121,8 @@ int home() {
 			system("Color 02");
 			getStudentInfo(&std);
 			system("cls");
-			y=generateGradesheet(40,8,&std);
-			y+=3;
+			y=generateGradesheet(40,5,&std);
+			y+=1;
 			confirmationDialogue(30,++y,"Do you want to save the gradesheet?[y/n]: ",&ch);
 			if(ch=='y' || ch=='Y') {
 				gotoxy(30,++y);
@@ -147,7 +147,7 @@ int home() {
 		case 5:
 			exit(0);
 		default:
-			gotoxy(30,8);
+			gotoxy(30,5);
 			printf("Invalid choice");
 	}
 	return y;
@@ -164,7 +164,7 @@ void confirmationDialogue(int x,int y,char *dialogue,char *ch) {
 void getStudentInfo(struct student *std) {
 	struct student std1;
 	FILE *fptr;
-	int i,x=30,y=8;
+	int i,x=30,y=5;
 	fptr=fopen("student.txt","ab+");
 	if(fptr==NULL) {
 		printf("Error opening student.txt");
@@ -310,7 +310,7 @@ int generateGradesheet(int x,int y,struct student *std) {
 // Function to show gradesheet
 int showGradesheet() {
 	FILE *fptr;
-	int x=40,y=8,flag;
+	int x=40,y=5,flag;
 	struct student std;
 	fptr=fopen("student.txt","rb");
 	if(fptr==NULL) {
@@ -341,7 +341,7 @@ int searchGradesheet() {
 	FILE *fptr;
 	struct student std;
 	int regNo;
-	int x=40,y=8,flag=0;
+	int x=40,y=5,flag=0;
 	gotoxy(x-10,y);
 	printf("Enter NCCS registration number of the student: ");
 	scanf("%d",&regNo);
@@ -371,7 +371,7 @@ int deleteGradesheet() {
 	FILE *fptr1,*fptr2;
 	struct student std;
 	int regNo,err,flag=0;
-	int x=40,y=8;
+	int x=40,y=5;
 	gotoxy(x-10,y);
 	printf("Enter NCCS registration number of the student: ");
 	scanf("%d",&regNo);

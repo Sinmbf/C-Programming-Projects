@@ -236,7 +236,6 @@ char* calculateGrade(int marks) {
 
 // Function to save data to file
 void saveToFile(student *std) {
-	student std1;
 	FILE *fptr;
 	int i;
 	fptr=fopen("student.txt","ab");
@@ -370,7 +369,7 @@ int searchGradesheet() {
 int deleteGradesheet() {
 	FILE *fptr1,*fptr2;
 	struct student std;
-	int regNo,err,flag=0;
+	int regNo,err=0,flag=0;
 	int x=40,y=5;
 	gotoxy(x-10,y);
 	printf("Enter NCCS registration number of the student: ");
@@ -396,6 +395,8 @@ int deleteGradesheet() {
 	if(flag==0) {
 		gotoxy(x,++y);
 		printf("Gradesheet not found!!!!");
+		fclose(fptr1);
+		fclose(fptr2);
 		return y;
 	}
 	fclose(fptr1);
