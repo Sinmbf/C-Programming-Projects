@@ -7,9 +7,9 @@ struct employee {
 	long long int contact;
 	int age;
 };
-void add(struct employee *emp,FILE *fp);
-void update();
-void del();
+void add(struct employee *emp, FILE *fp);
+void update(struct employee *emp);
+void del(struct employee *emp);
 void display();
 void main() {
 	struct employee emp;
@@ -22,12 +22,18 @@ void main() {
 		exit(0);
 	}
 	do {
-		printf("**********Employee Management System**********\n");
-		printf("1.Add Employees\n");
-		printf("2.Update Employees\n");
-		printf("3.Delete Employees\n");
-		printf("4.Display Employees\n");
-		printf("5.Exit\n");
+		system("color 71");
+	 printf("**************************************************\n");
+        printf("*            Employee Management System           *\n");
+        printf("**************************************************\n");
+        printf("*                                                *\n");
+        printf("*  1. Add Employees                              *\n");
+        printf("*  2. Update Employees                           *\n");
+        printf("*  3. Delete Employees                           *\n");
+        printf("*  4. Display Employees                          *\n");
+        printf("*  5. Exit                                       *\n");
+        printf("*                                                *\n");
+        printf("**************************************************\n");
 		printf("Enter Your choice:");
 		scanf("%d",&ch);
 		switch(ch) {
@@ -36,11 +42,11 @@ void main() {
 				break;
 
 			case 2:
-				update(emp,fp);
+				update(&emp);
 				break;
 
 			case 3:
-				del(emp,fp);
+				del(&emp);
 				break;
 
 			case 4:
@@ -52,17 +58,23 @@ void main() {
 				break;
 
 			default:
-				printf("Invalid choice");
+				printf("Invalid choice\n");
 		}
 		printf("Do You Want to Continue(y/n):");
 		scanf(" %c",&ci);
 	} while(ci=='y' || ci=='Y');
 	fclose(fp);
 }
-void add(struct employee *emp,FILE *fp) {
+void add(struct employee *emp,FILE *fp)
+{
 	char ch;
 	system("cls");
-	do {
+	do 
+	{
+		 printf("**************************************************\n");
+        printf("*             Add Employee Information           *\n");
+        printf("**************************************************\n");
+
 		printf("Please Enter your Id No:");
 		scanf("%d",&emp->id);
 		printf("Enter Your Name:");
@@ -82,27 +94,39 @@ void add(struct employee *emp,FILE *fp) {
 		scanf(" %c", &ch);
 		system("cls");
 		getchar();
-	} while(ch=='y' || ch=='Y');
+	} 
+	while(ch=='y' || ch=='Y');
 	printf("Successfully saved to file\n");
 	fclose(fp);
 }
 void update(struct employee *emp) 
 {
-	FILE *fp;
-	fopen("employee.txt","r+");
+	FILE *fp,*ft1;
+	char ch;
+	fp=fopen("employee.txt","r+");
+	ft1=fopen("update.txt","w");
+	if(ft1==NULL)
+	{
+		printf("Error on opening file");
+		exit(0);
+	}
 	if(fp==NULL)
 	{
 		printf("Error on opening file");
 		exit(0);
 	}
-	int id,i=0,found=0;
+	int idu,i=0,found=0;
 	system("cls");
+	 printf("**************************************************\n");
+    printf("*           Update Employee Information          *\n");
+    printf("**************************************************\n");
+
 	printf("Enter the employee ID to update:");
-	scanf("%d", &id);
+	scanf("%d", &idu);
 	rewind(fp);
-	while(fread(&emp,sizeof(struct employee),1,fp))
+	while(fread(emp,sizeof(struct employee),1,fp)==1)
 	{
-		if(emp->id==id) 
+		if(emp->id==idu) 
 		{
 			found=1;
 			printf("File Found Sucessfully\n");
@@ -116,24 +140,33 @@ void update(struct employee *emp)
 			printf("Enter current age:");
 			scanf("%d",&emp->age);
 			printf("Update Successfully\n");
-			fseek(fp, -sizeof(struct employee), SEEK_CUR);
-			fwrite(&emp,sizeof(struct employee),1,fp);
-			break;
+			fwrite(&emp,sizeof(struct employee),1,ft1);
 		}
-		i++;
+		else
+		{
+		fwrite(&emp,sizeof(struct employee),1,ft1);
+     	}
 	}
-	if(found==0) {
-		printf("Employee Record Not Found of ID NO:%d\n",id);
+	if(found==0) 
+	{
+		printf("Employee Record Not Found of ID NO:%d\n",idu);
 	}
 	fclose(fp);
+	fclose(ft1);
+	remove("employee.txt");
+	rename("update.txt","employee.txt");
+ system("cls");
 }
-void del(struct employee *emp) 
+void del(struct employee *emp)  
 {
 	system("cls");
     FILE *ft,*fp;
     int temp, found = 0;
+    char ch;
+    do
+	{
     ft=fopen("temp.txt", "w"); 
-    fp=fopen("employee.txt","r");
+    fp=fopen("employee.txt","r+");
     if (ft == NULL)
 	{
         printf("Error on opening temp file");
@@ -145,6 +178,10 @@ void del(struct employee *emp)
     	exit(0);
 	}
     rewind(fp);
+    printf("**************************************************\n");
+    printf("*           Delete Employee Information           *\n");
+    printf("**************************************************\n");
+
     printf("Enter the ID to delete: ");
     scanf("%d", &temp);
     fflush(stdin);
@@ -176,20 +213,27 @@ void del(struct employee *emp)
 	{
         printf("ID %d not found.\n", temp); 
     }
+    printf("DO YOU WANT TO DELETE MORE RECORDS(Y/N):");
+    scanf(" %c", &ch);
+}while(ch=='Y'||ch=='y');
+system("cls");
 }
-void display() {
+void display()
+ {
 	struct employee emp;
 	FILE *fp;
 	system("cls");
 	fp = fopen("employee.txt", "rb");
-	if (fp == NULL) {
+	if (fp == NULL)
+	 {
 		printf("Error on opening file");
 		exit(0);
 	}
 	printf("=================================================================================\n");
 	printf("| %-6s | %-20s | %-20s | %-15s | %-5s |\n", "ID no.", "Name", "Job Title", "Contact no.", "Age");
 	printf("=================================================================================\n");
-	while (fread(&emp,sizeof(emp),1,fp)) {
+	while (fread(&emp,sizeof(emp),1,fp))
+	 {
 		printf("| %-6d | %-20s | %-20s | %-15lld | %-5d |\n", emp.id, emp.name, emp.job_title, emp.contact, emp.age);
 	}
 	printf("=================================================================================\n");

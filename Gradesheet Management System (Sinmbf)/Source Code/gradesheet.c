@@ -88,7 +88,7 @@ void printVerticalLine(int x,int y,int height) {
 
 // Function to display starting point of program
 int home() {
-	system("Color 07");
+	system("Color 70");
 	struct student std;
 	char ch;
 	int x=30,y=5;
@@ -118,7 +118,7 @@ int home() {
 	system("cls");
 	switch(choice) {
 		case 1:
-			system("Color 02");
+			system("Color 70");
 			getStudentInfo(&std);
 			system("cls");
 			y=generateGradesheet(40,5,&std);
@@ -131,17 +131,17 @@ int home() {
 			break;
 		case 2:
 			system("cls");
-			system("Color 07");
+			system("Color 70");
 			y=showGradesheet();
 			break;
 		case 3:
 			system("cls");
-			system("Color 03");
+			system("Color 70");
 			y=searchGradesheet();
 			break;
 		case 4:
 			system("cls");
-			system("Color 04");
+			system("Color 70");
 			y=deleteGradesheet();
 			break;
 		case 5:
@@ -320,6 +320,7 @@ int showGradesheet() {
 	if(flag<1) {
 		gotoxy(30,y);
 		printf("No gradesheet found!!!");
+		fclose(fptr);
 		return y;
 	} else {
 		generateGradesheet(x,y,&std);
@@ -382,9 +383,11 @@ int deleteGradesheet() {
 		exit(1);
 	}
 	if(fptr2==NULL) {
-		printf("Error opening student.txt");
+		printf("Error opening temp.txt");
 		exit(1);
 	}
+	rewind(fptr1);
+	rewind(fptr2);
 	while(fread(&std,sizeof(std),1,fptr1)) {
 		if(std.registrationNum!=regNo) {
 			fwrite(&std,sizeof(std),1,fptr2);
@@ -405,11 +408,15 @@ int deleteGradesheet() {
 	gotoxy(x-5,++y);
 	if(err!=0) {
 		printf("Error deleting student.txt");
+		fclose(fptr1);
+		fclose(fptr2);
 		return y;
 	}
 	err=rename("temp.txt","student.txt");
 	if(err!=0) {
 		printf("Error deleting record");
+		fclose(fptr1);
+		fclose(fptr2);
 		return y;
 	} else {
 		printf("Successfully deleted record");
